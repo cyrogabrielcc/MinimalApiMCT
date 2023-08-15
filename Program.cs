@@ -16,3 +16,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
+/*
+app.MapGet("/", ()=> "Testando essa API");
+app.MapGet("Frases", async ()=> await new HttpClient().GetStringAsync("https://ron-swanson-quotes.herokuapp.com/v2/quotes"));
+*/
