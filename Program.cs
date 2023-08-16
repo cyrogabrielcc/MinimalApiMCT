@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using MinimalApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -17,7 +20,12 @@ if (app.Environment.IsDevelopment())
 
 app.Run();
 
-/*
-app.MapGet("/", ()=> "Testando essa API");
-app.MapGet("Frases", async ()=> await new HttpClient().GetStringAsync("https://ron-swanson-quotes.herokuapp.com/v2/quotes"));
-*/
+class AppDbContext : DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+        
+    }
+
+    public DbSet<Tarefa> tarefas { get; set;}
+}
