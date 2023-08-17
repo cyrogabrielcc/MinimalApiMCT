@@ -13,6 +13,13 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+/* ------- Iniciando os métodos: MapGet/post ------- */
+
+app.MapGet("/tarefa", async (AppDbContext db) =>  await db.tarefas.ToListAsync());
+
+
+/* ------- Finalizando os métodos: MapGet/post ------- */
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
