@@ -1,9 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using MinimalApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("DBTarefas")); 
 
 // Add services to the container.
 
@@ -13,12 +10,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-/* ------- Iniciando os métodos: MapGet/post ------- */
-
-app.MapGet("/tarefa", async (AppDbContext db) =>  await db.tarefas.ToListAsync());
-
-
-/* ------- Finalizando os métodos: MapGet/post ------- */
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -28,13 +19,3 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
-
-class AppDbContext : DbContext
-{
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    {
-        
-    }
-
-    public DbSet<Tarefa> tarefas { get; set;}
-}
