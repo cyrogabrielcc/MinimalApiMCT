@@ -12,7 +12,7 @@ using MinimalApi.Context;
 namespace MinimalApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230822221459_MigracaoInicial")]
+    [Migration("20230822222843_MigracaoInicial")]
     partial class MigracaoInicial
     {
         /// <inheritdoc />
