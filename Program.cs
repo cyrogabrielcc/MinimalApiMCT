@@ -15,12 +15,23 @@ var app = builder.Build();
 
 // Criando o método Get
 app.MapGet("/", () => "Catálogo de produtos - 2022");
+
+// Criando o método Post
 app.MapPost("/Categorias", async (Categoria categoria, AppDbContext db) => 
 {
     db.Categorias.Add(categoria);
     await db.SaveChangesAsync();
 
     return Results.Created($"/categorias/{categoria.CategoriaId}", categoria);
+});
+
+// Get pra trazer todos os valores
+app.MapGet("/categorias", async (AppDbContext db) => await db.Categorias.ToArrayAsync()); 
+
+// Get retornando um id
+app.MapGet("/categorias/{id:int}",  async (int id, AppDbContext db) => {
+    return await db.Categorias.FindAsync(id) is Categoria categoria ? 
+            Results.Ok(categoria) : Results.NotFound();
 });
 
 
