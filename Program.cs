@@ -85,12 +85,15 @@ app.MapPost("/produtos", async (Produto produto, AppDbContext db) => {
     await db.SaveChangesAsync();
 
     // Retorna Ok
-    return Results.Ok(produto);
+    return Results.Created($"/produtos/{produto.ProdutoId}", produto);
 });
 
+// Retornando todos os produtos
 app.MapGet("/produtos", async (int id, AppDbContext db)=>{
-    return await db.Produtos.ToArrayAsync();
+    await db.Produtos.ToArrayAsync();
 });
+
+//
 
 
 
