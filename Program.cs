@@ -93,7 +93,10 @@ app.MapGet("/produtos", async (int id, AppDbContext db)=>{
     await db.Produtos.ToArrayAsync();
 });
 
-//
+//Retornando um único produto
+app.MapGet("/produtos/{int:id}", async (int id, AppDbContext db)=>{
+    
+});
 
 
 
