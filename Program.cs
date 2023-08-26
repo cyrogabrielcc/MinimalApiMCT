@@ -37,20 +37,22 @@ app.MapGet("/categorias/{id:int}",  async (int id, AppDbContext db) => {
 // Ataulizando com o método PUT
 app.MapPut("/categorias/{id:int}", async (int id, Categoria categoria, AppDbContext db)=>{
 
-    // Vendo se o id já existe
+    // busca se  o ID tá lá msm 
     if (categoria.CategoriaId == id ) return Results.BadRequest();
     
+    // Retorna os dados existentes
     var categoriaDB = await db.Categorias.FindAsync(id);
 
+    // Verifica se o é falso
     if (categoriaDB is null) return Results.NotFound();
 
+    // Alterações
     categoriaDB.Nome =categoria.Nome;
     categoriaDB.Descricao =categoria.Descricao;
     
+    // Salvando e retornando o objeto
     await db.SaveChangesAsync();
     return Results.Ok(categoria);
-
-
 });
 
 
