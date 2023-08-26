@@ -17,7 +17,7 @@ var app = builder.Build();
 app.MapGet("/", () => "Catálogo de produtos - 2022");
 
 // Criando o método Post
-app.MapPost("/Categorias", async (Categoria categoria, AppDbContext db) => 
+app.MapPost("/categorias", async (Categoria categoria, AppDbContext db) => 
 {
     db.Categorias.Add(categoria);
     await db.SaveChangesAsync();
@@ -26,7 +26,9 @@ app.MapPost("/Categorias", async (Categoria categoria, AppDbContext db) =>
 });
 
 // Get pra trazer todos os valores
-app.MapGet("/categorias", async (AppDbContext db) => await db.Categorias.ToArrayAsync()); 
+app.MapGet("/categorias", async (AppDbContext db) =>
+    await db.Categorias.ToArrayAsync()
+ ); 
 
 // Get retornando um id
 app.MapGet("/categorias/{id:int}",  async (int id, AppDbContext db) => {
@@ -54,6 +56,42 @@ app.MapPut("/categorias/{id:int}", async (int id, Categoria categoria, AppDbCont
     await db.SaveChangesAsync();
     return Results.Ok(categoria);
 });
+
+
+// Criando o método Delete
+app.MapDelete("/categorias/{id:int}", async (int id, AppDbContext db)=>{
+
+    // procura a categoria
+    var categoria = await db.Categorias.FindAsync(id);
+
+    // Vendo se a categoria existe
+    if(categoria is null) return Results.NotFound();
+
+    db.Categorias.Remove(categoria);
+    await db.SaveChangesAsync();
+
+    return Results.NoContent();
+
+});
+// CRIANDO OS ENDPOINTS PARA PRODUTO
+
+// Criando o primeiro produto
+app.MapPost("/produtos", async (Produto produto, AppDbContext db) => {
+    
+    // Adicionando o produto
+    db.Produtos.Add(produto);
+    
+    // Salvando o produto
+    await db.SaveChangesAsync();
+
+    // Retorna Ok
+    return Results.Ok(produto);
+});
+
+app.MapGet("/produtos", async (int id, AppDbContext db)=>{
+    return await db.Produtos.ToArrayAsync();
+});
+
 
 
 // Configure the HTTP request pipeline.
