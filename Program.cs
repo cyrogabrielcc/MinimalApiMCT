@@ -20,9 +20,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Criando o método Get
-app.MapGet("/", () => "Catálogo de Produtos - 2022").ExcludeFromDescription();
-
 // Criando o método Post
 app.MapPost("/categorias", async (Categoria categoria, AppDbContext db) => 
 {
@@ -89,7 +86,7 @@ app.MapPost("/produtos/", async (Produto produto, AppDbContext db) =>{
 });
 
 // Retornando todos os produtos
-app.MapGet("/produtos/{id}", async (int id, AppDbContext db)=>{
+app.MapGet("/produtos/", async (AppDbContext db)=>{
     await db.Produtos.ToArrayAsync();
 });
 
