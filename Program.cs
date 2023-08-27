@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using MinimalApi.Context;
 using MinimalApi.models;
@@ -38,20 +39,15 @@ app.MapGet("/categorias/{id:int}",  async (int id, AppDbContext db) => {
 
 // Ataulizando com o método PUT
 app.MapPut("/categorias/{id:int}", async (int id, Categoria categoria, AppDbContext db)=>{
-
     // busca se  o ID tá lá msm 
-    if (categoria.CategoriaId == id ) return Results.BadRequest();
-    
+    if (categoria.CategoriaId != id ) return Results.BadRequest();
     // Retorna os dados existentes
     var categoriaDB = await db.Categorias.FindAsync(id);
-
     // Verifica se o é falso
     if (categoriaDB is null) return Results.NotFound();
-
     // Alterações
     categoriaDB.Nome =categoria.Nome;
     categoriaDB.Descricao =categoria.Descricao;
-    
     // Salvando e retornando o objeto
     await db.SaveChangesAsync();
     return Results.Ok(categoria);
@@ -71,19 +67,15 @@ app.MapDelete("/categorias/{id:int}", async (int id, AppDbContext db)=>{
     await db.SaveChangesAsync();
 
     return Results.NoContent();
-
 });
-// CRIANDO OS ENDPOINTS PARA PRODUTO
+/* ------------ CRIANDO OS ENDPOINTS PARA PRODUTO ------------*/
 
 // Criando o primeiro produto
-app.MapPost("/produtos", async (Produto produto, AppDbContext db) => {
-    
+app.MapPost("/produtos", async (Produto produto, AppDbContext db) =>{
     // Adicionando o produto
     db.Produtos.Add(produto);
-    
     // Salvando o produto
     await db.SaveChangesAsync();
-
     // Retorna Ok
     return Results.Created($"/produtos/{produto.ProdutoId}", produto);
 });
@@ -95,10 +87,40 @@ app.MapGet("/produtos", async (int id, AppDbContext db)=>{
 
 //Retornando um único produto
 app.MapGet("/produtos/{int:id}", async (int id, AppDbContext db)=>{
-    
+    // Procurando o produto e vendo se é um objeto produto
+    return await db.Produtos.FindAsync(id) is Produto produto ? Results.Ok(produto) : Results.NotFound(); 
 });
 
+app.MapPut("/produtos/{id:int}", async (int id, Produto produto, AppDbContext db) => {
+    // vendo se o id ta la msm
+    if(produto.ProdutoId != id) return Results.BadRequest();
+    // buscando o produto
+    var produtodb = await db.Produtos.FindAsync(id);
+    // Vendo se o produto é nulo
+    if (produtodb is null) {return Results.BadRequest();}
+    // Fazendo alterações
+    produtodb.Nome = produto.Nome;
+    produtodb.Descricao = produto.Descricao;
+    produtodb.Preco = produto.Preco;
+    produtodb.DatacCompra = produto.DatacCompra;
+    produtodb.Estoque = produto.Estoque;
+    // Salvando
+    await db.SaveChangesAsync();
+    // Retornando
+    return Results.Ok(produto);
+});
 
+app.MapDelete("/produtos/{int:id}", async (int id, AppDbContext db)=> {
+    var produto = await db.Produtos.FindAsync(id);
+
+    if (produto is null) return Results.BadRequest();
+   
+    db.Produtos.Remove(produto);
+    await db.SaveChangesAsync();
+
+    return Results.NoContent();
+
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
