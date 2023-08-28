@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MinimalApi.Context;
 using MinimalApi.models;
+using MinimalApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,7 @@ builder.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<ITokenService>(new TokenService());
 
 var app = builder.Build();
 
