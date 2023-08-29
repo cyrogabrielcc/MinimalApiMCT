@@ -41,6 +41,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             };
        });
 
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Criando o método Post
@@ -161,6 +163,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();   
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
 
 
 app.Run();
