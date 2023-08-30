@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.
     Services.
     AddDbContext<AppDbContext>(
-        options =>options.UseSqlServer(
+        options => options.UseSqlServer(
             builder.Configuration.GetConnectionString("ConexaoPadrao")
             )
         );
@@ -25,28 +26,54 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ITokenService>(new TokenService());
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-       .AddJwtBearer(options => 
+       .AddJwtBearer(options =>
        {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
+           options.TokenValidationParameters = new TokenValidationParameters
+           {
+               ValidateIssuer = true,
+               ValidateAudience = true,
+               ValidateLifetime = true,
+               ValidateIssuerSigningKey = true,
 
-                ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                ValidAudience = builder.Configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+               ValidIssuer = builder.Configuration["Jwt:Issuer"],
+               ValidAudience = builder.Configuration["Jwt:Audience"],
+               IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
 
-            };
+           };
        });
 
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+
+// ------------- ENDPOINTS -----
+app.MapPost("/login", [IAllowAnonymous] (UserModel userModel, ITokenService tokenService) =>
+{
+if (userModel == null)
+{
+    return Results.BadRequest();
+}
+
+if (userModel.UserName == "Cyro" && userModel.Password == "Xyz@1230")
+{
+    var tokenString = tokenService.GerarToken(
+            app.Configuration["Jwt:Key"],
+            app.Configuration["Jwt:Issuer"],
+            userModel);
+    return Results.Ok(new {token= tokenString} );
+}
+
+    else
+    {
+        return Results.BadRequest("Login inválido");
+    }
+
+});
+
+
 // Criando o método Post
-app.MapPost("/categorias", async (Categoria categoria, AppDbContext db) => 
+app.MapPost("/categorias", async (Categoria categoria, AppDbContext db) =>
 {
     db.Categorias.Add(categoria);
     await db.SaveChangesAsync();
@@ -54,25 +81,27 @@ app.MapPost("/categorias", async (Categoria categoria, AppDbContext db) =>
 });
 
 // Get pra trazer todos os valores
-app.MapGet("/categorias", async (AppDbContext db) =>await db.Categorias.ToListAsync()); 
+app.MapGet("/categorias", async (AppDbContext db) => await db.Categorias.ToListAsync());
 
 // Get retornando um id
-app.MapGet("/categorias/{id}/",  async (int id, AppDbContext db) => {
-    return await db.Categorias.FindAsync(id) is Categoria categoria ? 
+app.MapGet("/categorias/{id}/", async (int id, AppDbContext db) =>
+{
+    return await db.Categorias.FindAsync(id) is Categoria categoria ?
             Results.Ok(categoria) : Results.NotFound();
 });
 
 // Ataulizando com o método PUT
-app.MapPut("/categorias/{id}/", async (int id, Categoria categoria, AppDbContext db)=>{
+app.MapPut("/categorias/{id}/", async (int id, Categoria categoria, AppDbContext db) =>
+{
     // busca se  o ID tá lá msm 
-    if (categoria.CategoriaId != id ) return Results.BadRequest();
+    if (categoria.CategoriaId != id) return Results.BadRequest();
     // Retorna os dados existentes
     var categoriaDB = await db.Categorias.FindAsync(id);
     // Verifica se o é falso
     if (categoriaDB is null) return Results.NotFound();
     // Alterações
-    categoriaDB.Nome =categoria.Nome;
-    categoriaDB.Descricao =categoria.Descricao;
+    categoriaDB.Nome = categoria.Nome;
+    categoriaDB.Descricao = categoria.Descricao;
     // Salvando e retornando o objeto
     await db.SaveChangesAsync();
     return Results.Ok(categoria);
@@ -80,11 +109,12 @@ app.MapPut("/categorias/{id}/", async (int id, Categoria categoria, AppDbContext
 
 
 // Criando o método Delete
-app.MapDelete("/categorias/{id}/", async (int id, AppDbContext db)=>{
+app.MapDelete("/categorias/{id}/", async (int id, AppDbContext db) =>
+{
     // procura a categoria
     var categoria = await db.Categorias.FindAsync(id);
     // Vendo se a categoria existe
-    if(categoria is null) return Results.NotFound();
+    if (categoria is null) return Results.NotFound();
     // Removendo ategoria
     db.Categorias.Remove(categoria);
     // Salvando
@@ -101,7 +131,8 @@ app.MapDelete("/categorias/{id}/", async (int id, AppDbContext db)=>{
 
 
 // Criando o primeiro produto
-app.MapPost("/produtos/", async (Produto produto, AppDbContext db) =>{
+app.MapPost("/produtos/", async (Produto produto, AppDbContext db) =>
+{
     // Adicionando o produto
     db.Produtos.Add(produto);
     // Salvando o produto
@@ -111,26 +142,29 @@ app.MapPost("/produtos/", async (Produto produto, AppDbContext db) =>{
 });
 
 // Retornando todos os produtos
-app.MapGet("/produtos/", async (AppDbContext db)=>{
+app.MapGet("/produtos/", async (AppDbContext db) =>
+{
     await db.Produtos.ToArrayAsync();
 });
 
 //Retornando um único produto
-app.MapGet("/produtos/{id}", async (int id, AppDbContext db)=>{
+app.MapGet("/produtos/{id}", async (int id, AppDbContext db) =>
+{
     // Procurando o produto e vendo se é um objeto produto
-    return await db.Produtos.FindAsync(id) is Produto produto ? Results.Ok(produto) : Results.NotFound(); 
+    return await db.Produtos.FindAsync(id) is Produto produto ? Results.Ok(produto) : Results.NotFound();
 });
 
-app.MapPut("/produtos/{id}", async (int id, Produto produto, AppDbContext db) => {
-    
+app.MapPut("/produtos/{id}", async (int id, Produto produto, AppDbContext db) =>
+{
+
     if (produto.ProdutoId != id)
     {
         return Results.BadRequest();
     }
-// buscando o produto
+    // buscando o produto
     var produtodb = await db.Produtos.FindAsync(id);
     // Vendo se o produto é nulo
-    if (produtodb is null) {return Results.BadRequest();}
+    if (produtodb is null) { return Results.BadRequest(); }
     // Fazendo alterações
     produtodb.Nome = produto.Nome;
     produtodb.Descricao = produto.Descricao;
@@ -144,11 +178,12 @@ app.MapPut("/produtos/{id}", async (int id, Produto produto, AppDbContext db) =>
     return Results.Ok(produtodb);
 });
 
-app.MapDelete("/produtos/{id}", async (int id, AppDbContext db)=> {
+app.MapDelete("/produtos/{id}", async (int id, AppDbContext db) =>
+{
     var produto = await db.Produtos.FindAsync(id);
 
     if (produto is null) return Results.BadRequest();
-   
+
     db.Produtos.Remove(produto);
     await db.SaveChangesAsync();
 
@@ -160,7 +195,7 @@ app.MapDelete("/produtos/{id}", async (int id, AppDbContext db)=> {
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();   
+    app.UseSwaggerUI();
 }
 
 app.UseAuthentication();
