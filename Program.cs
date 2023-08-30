@@ -82,7 +82,7 @@ app.MapPost("/categorias", async (Categoria categoria, AppDbContext db) =>
     db.Categorias.Add(categoria);
     await db.SaveChangesAsync();
     return Results.Created($"/categorias/{categoria.CategoriaId}", categoria);
-});
+}).RequireAuthorization();
 
 // Get pra trazer todos os valores
 app.MapGet("/categorias", async (AppDbContext db) => await db.Categorias.ToListAsync());
@@ -92,7 +92,7 @@ app.MapGet("/categorias/{id}/", async (int id, AppDbContext db) =>
 {
     return await db.Categorias.FindAsync(id) is Categoria categoria ?
             Results.Ok(categoria) : Results.NotFound();
-});
+}).RequireAuthorization();
 
 // Ataulizando com o método PUT
 app.MapPut("/categorias/{id}/", async (int id, Categoria categoria, AppDbContext db) =>
@@ -109,7 +109,7 @@ app.MapPut("/categorias/{id}/", async (int id, Categoria categoria, AppDbContext
     // Salvando e retornando o objeto
     await db.SaveChangesAsync();
     return Results.Ok(categoria);
-});
+}).RequireAuthorization();
 
 
 // Criando o método Delete
@@ -125,7 +125,7 @@ app.MapDelete("/categorias/{id}/", async (int id, AppDbContext db) =>
     await db.SaveChangesAsync();
     // retornando
     return Results.NoContent();
-});
+}).RequireAuthorization();
 
 
 
@@ -143,20 +143,20 @@ app.MapPost("/produtos/", async (Produto produto, AppDbContext db) =>
     await db.SaveChangesAsync();
     // Retorna Ok
     return Results.Created($"/produtos/{produto.ProdutoId}", produto);
-});
+}).RequireAuthorization();
 
 // Retornando todos os produtos
 app.MapGet("/produtos/", async (AppDbContext db) =>
 {
     await db.Produtos.ToArrayAsync();
-});
+}).RequireAuthorization();
 
 //Retornando um único produto
 app.MapGet("/produtos/{id}", async (int id, AppDbContext db) =>
 {
     // Procurando o produto e vendo se é um objeto produto
     return await db.Produtos.FindAsync(id) is Produto produto ? Results.Ok(produto) : Results.NotFound();
-});
+}).RequireAuthorization();
 
 app.MapPut("/produtos/{id}", async (int id, Produto produto, AppDbContext db) =>
 {
