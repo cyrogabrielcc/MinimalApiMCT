@@ -48,28 +48,32 @@ var app = builder.Build();
 
 
 // ------------- ENDPOINTS -----
-app.MapPost("/login", [IAllowAnonymous] (UserModel userModel, ITokenService tokenService) =>
+app.MapPost("/login", [AllowAnonymous] (UserModel userModel, ITokenService tokenService) =>
 {
-if (userModel == null)
-{
-    return Results.BadRequest();
-}
+    if (userModel == null)
+    {
+        return Results.BadRequest();
+    }
 
-if (userModel.UserName == "Cyro" && userModel.Password == "Xyz@1230")
-{
-    var tokenString = tokenService.GerarToken(
-            app.Configuration["Jwt:Key"],
-            app.Configuration["Jwt:Issuer"],
-            userModel);
-    return Results.Ok(new {token= tokenString} );
-}
+    if (userModel.UserName == "Cyro" && userModel.Password == "Xyz@1230")
+    {
+        var tokenString = tokenService.GerarToken(
+                app.Configuration["Jwt:Key"],
+                app.Configuration["Jwt:Issuer"],
+                app.Configuration["Jwt:Audience"],
+                userModel);
+        return Results.Ok(new { token = tokenString });
+    }
 
     else
     {
         return Results.BadRequest("Login inválido");
     }
 
-});
+}).Produces(StatusCodes.Status400BadRequest)
+  .Produces(StatusCodes.Status200OK)
+  .WithName("Login")
+  .WithTags("Autenticacao") ;
 
 
 // Criando o método Post
