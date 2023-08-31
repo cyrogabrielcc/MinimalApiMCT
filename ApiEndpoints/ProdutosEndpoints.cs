@@ -8,60 +8,72 @@ using MinimalApi.models;
 
 namespace MinimalApi.ApiEndpoints
 {
-    public static class CategoriaEndpoints
+    public static class ProdutosEndpoints
     {
-        public static void MapCategoriasEndpoints(this WebApplication app)
+        public static void MapProdutossEndpoints(this WebApplication app)
         {
-            // Criando o método Post
-            app.MapPost("/categorias", async (Categoria categoria, AppDbContext db) =>
+           
+            // Criando o primeiro produto
+            app.MapPost("/produtos/", async (Produto produto, AppDbContext db) =>
             {
-                db.Categorias.Add(categoria);
+                // Adicionando o produto
+                db.Produtos.Add(produto);
+                // Salvando o produto
                 await db.SaveChangesAsync();
-                return Results.Created($"/categorias/{categoria.CategoriaId}", categoria);
+                // Retorna Ok
+                return Results.Created($"/produtos/{produto.ProdutoId}", produto);
             }).RequireAuthorization();
 
-            // Get pra trazer todos os valores
-            app.MapGet("/categorias", async (AppDbContext db) => await db.Categorias.ToListAsync());
-
-            // Get retornando um id
-            app.MapGet("/categorias/{id}/", async (int id, AppDbContext db) =>
+            // Retornando todos os produtos
+            app.MapGet("/produtos/", async (AppDbContext db) =>
             {
-                return await db.Categorias.FindAsync(id) is Categoria categoria ?
-                        Results.Ok(categoria) : Results.NotFound();
+                await db.Produtos.ToArrayAsync();
             }).RequireAuthorization();
 
-            // Ataulizando com o método PUT
-            app.MapPut("/categorias/{id}/", async (int id, Categoria categoria, AppDbContext db) =>
+            //Retornando um único produto
+            app.MapGet("/produtos/{id}", async (int id, AppDbContext db) =>
             {
-                // busca se  o ID tá lá msm 
-                if (categoria.CategoriaId != id) return Results.BadRequest();
-                // Retorna os dados existentes
-                var categoriaDB = await db.Categorias.FindAsync(id);
-                // Verifica se o é falso
-                if (categoriaDB is null) return Results.NotFound();
-                // Alterações
-                categoriaDB.Nome = categoria.Nome;
-                categoriaDB.Descricao = categoria.Descricao;
-                // Salvando e retornando o objeto
-                await db.SaveChangesAsync();
-                return Results.Ok(categoria);
+                // Procurando o produto e vendo se é um objeto produto
+                return await db.Produtos.FindAsync(id) is Produto produto ? Results.Ok(produto) : Results.NotFound();
             }).RequireAuthorization();
 
-
-            // Criando o método Delete
-            app.MapDelete("/categorias/{id}/", async (int id, AppDbContext db) =>
+            app.MapPut("/produtos/{id}", async (int id, Produto produto, AppDbContext db) =>
             {
-                // procura a categoria
-                var categoria = await db.Categorias.FindAsync(id);
-                // Vendo se a categoria existe
-                if (categoria is null) return Results.NotFound();
-                // Removendo ategoria
-                db.Categorias.Remove(categoria);
+
+                if (produto.ProdutoId != id)
+                {
+                    return Results.BadRequest();
+                }
+                // buscando o produto
+                var produtodb = await db.Produtos.FindAsync(id);
+                // Vendo se o produto é nulo
+                if (produtodb is null) { return Results.BadRequest(); }
+                // Fazendo alterações
+                produtodb.Nome = produto.Nome;
+                produtodb.Descricao = produto.Descricao;
+                produtodb.Preco = produto.Preco;
+                produtodb.DatacCompra = produto.DatacCompra;
+                produtodb.Estoque = produto.Estoque;
+                produtodb.CategoriaId = produto.CategoriaId;
                 // Salvando
                 await db.SaveChangesAsync();
-                // retornando
+                // Retornando
+                return Results.Ok(produtodb);
+            });
+
+            app.MapDelete("/produtos/{id}", async (int id, AppDbContext db) =>
+            {
+                var produto = await db.Produtos.FindAsync(id);
+
+                if (produto is null) return Results.BadRequest();
+
+                db.Produtos.Remove(produto);
+                await db.SaveChangesAsync();
+
                 return Results.NoContent();
-            }).RequireAuthorization();
+
+            });
+
 
         }
     }
