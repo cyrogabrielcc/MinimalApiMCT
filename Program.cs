@@ -8,6 +8,7 @@ using MinimalApi.Context;
 using MinimalApi.models;
 using MinimalApi.Services;
 using MinimalApi.ApiEndpoints;
+using MinimalApi.AppServiceExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,7 +80,8 @@ var app = builder.Build();
 app.MapAuthenticacaoEndpoints();
 app.MapCategoriasEndpoints();
 app.MapProdutossEndpoints();
-
+var environment = app.Environment;
+app.UseExceptionHandling(environment).UseSwaggerMiddlare().UseAppCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
