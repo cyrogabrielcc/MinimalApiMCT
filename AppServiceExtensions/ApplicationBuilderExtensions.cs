@@ -28,5 +28,12 @@ namespace MinimalApi.AppServiceExtensions
 
             return app;
         }
+        public static IApplicationBuilder UseSwaggerMiddlare(this IApplicationBuilder app)
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI(c=>{});
+
+            return app;
+        }
     }
 }

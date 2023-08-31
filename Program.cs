@@ -80,13 +80,6 @@ app.MapAuthenticacaoEndpoints();
 app.MapCategoriasEndpoints();
 app.MapProdutossEndpoints();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c=>{});
-}
-
 app.UseAuthentication();
 app.UseAuthorization();
 
