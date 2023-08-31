@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using MinimalApi.Context;
 using MinimalApi.models;
 using MinimalApi.Services;
+using MinimalApi.ApiEndpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,8 +76,7 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 
-// ------------- ENDPOINTS -----
-
+app.MapAuthenticacaoEndpoints();
 
 
 // Criando o método Post

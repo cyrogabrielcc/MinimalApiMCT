@@ -10,7 +10,7 @@ namespace MinimalApi.ApiEndpoints
 {
     public static class AutenticacaoEndpoints
     {
-        public static MapAuthenticacaoEndpoints(this WebApplication app)
+        public static void MapAuthenticacaoEndpoints(this WebApplication app)
         {
             app.MapPost("/login", [AllowAnonymous] (UserModel userModel, ITokenService tokenService) =>
             {
