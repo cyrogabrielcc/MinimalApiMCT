@@ -85,7 +85,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c=>{});
-
 }
 
 app.UseAuthentication();
