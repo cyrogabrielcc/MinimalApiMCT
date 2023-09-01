@@ -12,20 +12,6 @@ using MinimalApi.AppServiceExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.
-    Services.
-    AddDbContext<AppDbContext>(
-        options => options.UseSqlServer(
-            builder.Configuration.GetConnectionString("ConexaoPadrao")
-            )
-        );
-
-//definir os endpoints
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
-builder.Services.AddSingleton<ITokenService>(new TokenService());
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
        .AddJwtBearer(options =>
        {

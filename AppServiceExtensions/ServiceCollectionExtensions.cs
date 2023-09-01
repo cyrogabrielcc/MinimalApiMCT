@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using MinimalApi.Context;
+using MinimalApi.Services;
 
 namespace MinimalApi.AppServiceExtensions
 {
@@ -46,6 +49,20 @@ namespace MinimalApi.AppServiceExtensions
                             });
             });
             return services;
+        }
+
+        public static WebApplicationBuilder AddPersistence(this WebApplicationBuilder builder)
+        {
+            // Add services to the container.
+            builder.
+                Services.
+                AddDbContext<AppDbContext>(
+                    options => options.UseSqlServer(
+                        builder.Configuration.GetConnectionString("ConexaoPadrao")
+                        )
+                    );
+
+            builder.Services.AddSingleton<ITokenService>(new TokenService());
         }
     }
 }
