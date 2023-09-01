@@ -14,7 +14,7 @@ namespace MinimalApi.AppServiceExtensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static WebApplicationBuilder AppApiSwagger(this WebApplicationBuilder builder)
+        public static WebApplicationBuilder AddApiSwagger(this WebApplicationBuilder builder)
         {
             builder.Services.AddSwagger();
             return builder;

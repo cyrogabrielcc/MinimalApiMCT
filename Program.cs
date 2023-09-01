@@ -12,7 +12,10 @@ using MinimalApi.AppServiceExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+builder.AddApiSwagger();
+builder.AddPersistence();
+builder.Services.AddCors();
+builder.AddAuthenticationJwt();
 
 var app = builder.Build();
 
